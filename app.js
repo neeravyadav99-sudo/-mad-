@@ -212,6 +212,16 @@ function findConversionIndex(trend, direction) {
   return index;
 }
 
+function findConfirmedConversionIndex(candles, trend, direction) {
+  let index = candles.length - 1;
+
+  while (index > 2 && getTrendDirection(candles, trend, index - 1) === direction) {
+    index -= 1;
+  }
+
+  return index;
+}
+
 function formatConvertedAt(timestamp) {
   const daysAgo = getConvertedDaysAgo(timestamp);
 
@@ -263,7 +273,14 @@ async function scanSymbol(symbol, interval, trendLength) {
   const direction = getTrendDirection(candles, trend, candles.length - 1);
   const changePct = previous.close ? (last.close - previous.close) / previous.close * 100 : 0;
   const distancePct = currentTrend ? (last.close - currentTrend) / currentTrend * 100 : 0;
-  const conversionIndex = direction ? findConversionIndex(trend, direction) : null;
+  const lineConversionIndex = direction ? findConversionIndex(trend, direction) : null;
+  const confirmedConversionIndex = direction ? findConfirmedConversionIndex(candles, trend, direction) : null;
+  const lineConvertedAt = lineConversionIndex === null ? null : candles[lineConversionIndex].time;
+  const confirmedConvertedAt = confirmedConversionIndex === null ? null : candles[confirmedConversionIndex].time;
+  const useConfirmedDate =
+    lineConvertedAt !== null &&
+    confirmedConvertedAt !== null &&
+    getConvertedDaysAgo(lineConvertedAt) <= 1;
 
   return {
     symbol,
@@ -273,7 +290,7 @@ async function scanSymbol(symbol, interval, trendLength) {
     volume: last.volume,
     distancePct,
     direction,
-    convertedAt: conversionIndex === null ? null : candles[conversionIndex].time
+    convertedAt: useConfirmedDate ? confirmedConvertedAt : lineConvertedAt
   };
 }
 
@@ -312,7 +329,7 @@ function renderRows() {
     const convertedLabel = row.convertedAt ? formatConvertedAt(row.convertedAt) : "-";
     const convertedClass = row.convertedAt ? getConvertedClass(row.convertedAt) : "";
     const isStarred = STARRED_BASES.has(row.base);
-    const star = isStarred ? `<span class="star">★</span>` : "";
+    const star = isStarred ? `<span class="star">&#9733;</span>` : "";
 
     return `
       <tr class="${trendClass}">
