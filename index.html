@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crypto Trend Radar (NRV)</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="topbar">
+      <div>
+        <p class="eyebrow">Crypto scanner</p>
+        <h1>Trend Radar <span class="nrv-label">(NRV)</span></h1>
+      </div>
+      <div class="status-panel">
+        <span id="scanStatus">Ready</span>
+        <button id="refreshButton" type="button">Refresh</button>
+      </div>
+    </section>
+
+    <section class="controls" aria-label="Scanner controls">
+      <label>
+        Universe
+        <select id="universeMode">
+          <option value="volume" selected>Top 50 Binance USDT volume</option>
+          <option value="custom">Custom symbols</option>
+        </select>
+      </label>
+      <label>
+        Timeframe
+        <select id="timeframe">
+          <option value="1d" selected>1 Day</option>
+          <option value="4h">4 Hours</option>
+          <option value="1h">1 Hour</option>
+        </select>
+      </label>
+      <label>
+        Limit
+        <input id="symbolLimit" type="number" min="5" max="80" value="50">
+      </label>
+    </section>
+
+    <section class="custom-symbols" id="customSymbolsWrap" hidden>
+      <label>
+        Custom Binance symbols
+        <textarea id="customSymbols" spellcheck="false">BTCUSDT,ETHUSDT,SOLUSDT,BNBUSDT,XRPUSDT,DOGEUSDT,ADAUSDT,AVAXUSDT,LINKUSDT,TONUSDT</textarea>
+      </label>
+    </section>
+
+    <section class="stats-grid" aria-label="Radar summary">
+      <article>
+        <span>Scanned</span>
+        <strong id="scannedCount">0</strong>
+      </article>
+      <article>
+        <span>Buy Signals</span>
+        <strong id="uptrendCount">0</strong>
+      </article>
+      <article>
+        <span>Sell Signals</span>
+        <strong id="downtrendCount">0</strong>
+      </article>
+      <article>
+        <span>Last Update</span>
+        <strong id="lastUpdate">-</strong>
+      </article>
+    </section>
+
+    <section class="mode-switch" aria-label="Trend direction">
+      <button id="uptrendButton" class="mode-button active" type="button">Uptrend</button>
+      <button id="downtrendButton" class="mode-button" type="button">Downtrend</button>
+    </section>
+
+    <section class="table-wrap" aria-label="Trend radar table">
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Symbol</th>
+            <th>Status</th>
+            <th>Converted</th>
+            <th>Price</th>
+            <th>24h %</th>
+            <th>Volume</th>
+          </tr>
+        </thead>
+        <tbody id="radarBody">
+          <tr>
+            <td colspan="7" class="empty">Press Refresh to scan.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
