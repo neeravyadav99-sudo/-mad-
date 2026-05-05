@@ -212,14 +212,14 @@ function findConversionIndex(trend, direction) {
   return index;
 }
 
-function findConfirmedConversionIndex(candles, trend, direction) {
-  let index = candles.length - 1;
-
-  while (index > 2 && getTrendDirection(candles, trend, index - 1) === direction) {
-    index -= 1;
+function findConfirmedConversionIndex(candles, trend, direction, startIndex) {
+  for (let index = Math.max(2, startIndex); index < candles.length; index += 1) {
+    if (getTrendDirection(candles, trend, index) === direction) {
+      return index;
+    }
   }
 
-  return index;
+  return null;
 }
 
 function formatConvertedAt(timestamp) {
@@ -274,13 +274,12 @@ async function scanSymbol(symbol, interval, trendLength) {
   const changePct = previous.close ? (last.close - previous.close) / previous.close * 100 : 0;
   const distancePct = currentTrend ? (last.close - currentTrend) / currentTrend * 100 : 0;
   const lineConversionIndex = direction ? findConversionIndex(trend, direction) : null;
-  const confirmedConversionIndex = direction ? findConfirmedConversionIndex(candles, trend, direction) : null;
+  const confirmedConversionIndex =
+    direction && lineConversionIndex !== null
+      ? findConfirmedConversionIndex(candles, trend, direction, lineConversionIndex)
+      : null;
   const lineConvertedAt = lineConversionIndex === null ? null : candles[lineConversionIndex].time;
   const confirmedConvertedAt = confirmedConversionIndex === null ? null : candles[confirmedConversionIndex].time;
-  const useConfirmedDate =
-    lineConvertedAt !== null &&
-    confirmedConvertedAt !== null &&
-    getConvertedDaysAgo(lineConvertedAt) <= 1;
 
   return {
     symbol,
@@ -290,7 +289,7 @@ async function scanSymbol(symbol, interval, trendLength) {
     volume: last.volume,
     distancePct,
     direction,
-    convertedAt: useConfirmedDate ? confirmedConvertedAt : lineConvertedAt
+    convertedAt: confirmedConvertedAt || lineConvertedAt
   };
 }
 
